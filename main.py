@@ -28,14 +28,11 @@ class Window(QWidget):
         self.upload_gpx_button.setFixedSize(100, 40)
         self.upload_gpx_button.clicked.connect(self.upload_gpx_button_handler)
 
-        self.show_route_button = QPushButton("show route")
-        self.show_route_button.setFixedSize(100, 40)
-
         self.file_name_label = QLabel()
 
         self.sub_layout.addWidget(self.upload_gpx_button)
         self.sub_layout.addWidget(self.file_name_label)
-        self.sub_layout.addWidget(self.show_route_button)
+
         self.sub_layout.addStretch()
 
         self.map_widget = QtWebEngineWidgets.QWebEngineView()
