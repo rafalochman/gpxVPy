@@ -2,7 +2,7 @@ import io
 import os
 import sys
 import folium
-from PyQt5.QtWidgets import QPushButton, QHBoxLayout, QApplication, QWidget, QVBoxLayout, QFileDialog
+from PyQt5.QtWidgets import QPushButton, QHBoxLayout, QApplication, QWidget, QVBoxLayout, QFileDialog, QLabel
 from PyQt5 import QtWebEngineWidgets
 
 
@@ -24,13 +24,16 @@ class Window(QWidget):
         layout.addLayout(sub_layout)
 
         self.upload_gpx_button = QPushButton("upload gpx file")
-        self.show_route_button = QPushButton("show route")
         self.upload_gpx_button.setFixedSize(100, 40)
-        self.show_route_button.setFixedSize(100, 40)
-
         self.upload_gpx_button.clicked.connect(self.upload_gpx_button_handler)
 
+        self.show_route_button = QPushButton("show route")
+        self.show_route_button.setFixedSize(100, 40)
+
+        self.file_name_label = QLabel()
+
         sub_layout.addWidget(self.upload_gpx_button)
+        sub_layout.addWidget(self.file_name_label)
         sub_layout.addWidget(self.show_route_button)
         sub_layout.addStretch()
 
@@ -51,6 +54,7 @@ class Window(QWidget):
         path = QFileDialog.getOpenFileName(None, "Select GPX file", "", "GPX files (*.gpx)")
         path = path[0]
         file_name = os.path.basename(path)
+        self.file_name_label.setText(file_name)
 
 
 if __name__ == "__main__":
