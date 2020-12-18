@@ -18,11 +18,11 @@ class Window(QWidget):
         self.init_layout()
 
     def init_layout(self):
-        layout = QHBoxLayout()
-        layout.setSpacing(50)
-        sub_layout = QVBoxLayout()
-        sub_layout.addStretch()
-        layout.addLayout(sub_layout)
+        self.layout = QHBoxLayout()
+        self.layout.setSpacing(50)
+        self.sub_layout = QVBoxLayout()
+        self.sub_layout.addStretch()
+        self.layout.addLayout(self.sub_layout)
 
         self.upload_gpx_button = QPushButton("upload gpx file")
         self.upload_gpx_button.setFixedSize(100, 40)
@@ -33,37 +33,52 @@ class Window(QWidget):
 
         self.file_name_label = QLabel()
 
-        sub_layout.addWidget(self.upload_gpx_button)
-        sub_layout.addWidget(self.file_name_label)
-        sub_layout.addWidget(self.show_route_button)
-        sub_layout.addStretch()
+        self.sub_layout.addWidget(self.upload_gpx_button)
+        self.sub_layout.addWidget(self.file_name_label)
+        self.sub_layout.addWidget(self.show_route_button)
+        self.sub_layout.addStretch()
 
-        map_widget = QtWebEngineWidgets.QWebEngineView()
-        map_widget.setContentsMargins(30, 30, 30, 30)
+        self.map_widget = QtWebEngineWidgets.QWebEngineView()
+        self.map_widget.setContentsMargins(30, 30, 30, 30)
         m = folium.Map(
             location=[51.919438, 19.145136], zoom_start=5
         )
         data = io.BytesIO()
         m.save(data, close_file=False)
-        map_widget.setHtml(data.getvalue().decode())
+        self.map_widget.setHtml(data.getvalue().decode())
 
-        layout.addWidget(map_widget)
+        self.layout.addWidget(self.map_widget)
 
-        self.setLayout(layout)
+        self.setLayout(self.layout)
 
     def upload_gpx_button_handler(self):
         path = QFileDialog.getOpenFileName(None, "Select GPX file", "", "GPX files (*.gpx)")
         path = path[0]
         file_name = os.path.basename(path)
         self.file_name_label.setText(file_name)
+        self.display_gpx_route(path)
 
+    def display_gpx_route(self, path):
         gpx_file = open(path, 'r')
         gpx = gpxpy.parse(gpx_file)
-        points_lat_lng = []
+        points = []
         for track in gpx.tracks:
             for segment in track.segments:
                 for point in segment.points:
-                    points_lat_lng.append(tuple([point.latitude, point.longitude]))
+                    points.append(tuple([point.latitude, point.longitude]))
+
+        center_lat = sum(p[0] for p in points) / len(points)
+        center_lon = sum(p[1] for p in points) / len(points)
+
+        m = folium.Map(
+            location=[center_lat, center_lon], zoom_start=10
+        )
+        folium.PolyLine(points, color="red", weight=2.5, opacity=1).add_to(m)
+
+        data = io.BytesIO()
+        m.save(data, close_file=False)
+        self.map_widget.setHtml(data.getvalue().decode())
+        self.map_widget.update()
 
 
 if __name__ == "__main__":
