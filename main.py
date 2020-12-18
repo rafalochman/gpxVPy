@@ -1,7 +1,8 @@
 import io
+import os
 import sys
 import folium
-from PyQt5.QtWidgets import QPushButton, QHBoxLayout, QApplication, QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QPushButton, QHBoxLayout, QApplication, QWidget, QVBoxLayout, QFileDialog
 from PyQt5 import QtWebEngineWidgets
 
 
@@ -22,13 +23,15 @@ class Window(QWidget):
         sub_layout.addStretch()
         layout.addLayout(sub_layout)
 
-        upload_gpx_button = QPushButton("upload gpx file")
-        show_route_button = QPushButton("show route")
-        upload_gpx_button.setFixedSize(100, 40)
-        show_route_button.setFixedSize(100, 40)
+        self.upload_gpx_button = QPushButton("upload gpx file")
+        self.show_route_button = QPushButton("show route")
+        self.upload_gpx_button.setFixedSize(100, 40)
+        self.show_route_button.setFixedSize(100, 40)
 
-        sub_layout.addWidget(upload_gpx_button)
-        sub_layout.addWidget(show_route_button)
+        self.upload_gpx_button.clicked.connect(self.upload_gpx_button_handler)
+
+        sub_layout.addWidget(self.upload_gpx_button)
+        sub_layout.addWidget(self.show_route_button)
         sub_layout.addStretch()
 
         map_widget = QtWebEngineWidgets.QWebEngineView()
@@ -43,6 +46,11 @@ class Window(QWidget):
         layout.addWidget(map_widget)
 
         self.setLayout(layout)
+
+    def upload_gpx_button_handler(self):
+        path = QFileDialog.getOpenFileName(None, "Select GPX file", "", "GPX files (*.gpx)")
+        path = path[0]
+        file_name = os.path.basename(path)
 
 
 if __name__ == "__main__":
