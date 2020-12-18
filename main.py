@@ -71,9 +71,10 @@ class Window(QWidget):
         center_lon = sum(p[1] for p in points) / len(points)
 
         m = folium.Map(
-            location=[center_lat, center_lon], zoom_start=10
+            location=[center_lat, center_lon]
         )
         folium.PolyLine(points, color="red", weight=2.5, opacity=1).add_to(m)
+        m.fit_bounds(points)
 
         data = io.BytesIO()
         m.save(data, close_file=False)
