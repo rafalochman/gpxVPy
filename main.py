@@ -4,6 +4,7 @@ import sys
 import folium
 from PyQt5.QtWidgets import QPushButton, QHBoxLayout, QApplication, QWidget, QVBoxLayout, QFileDialog, QLabel
 from PyQt5 import QtWebEngineWidgets
+import gpxpy
 
 
 class Window(QWidget):
@@ -55,6 +56,14 @@ class Window(QWidget):
         path = path[0]
         file_name = os.path.basename(path)
         self.file_name_label.setText(file_name)
+
+        gpx_file = open(path, 'r')
+        gpx = gpxpy.parse(gpx_file)
+        points_lat_lng = []
+        for track in gpx.tracks:
+            for segment in track.segments:
+                for point in segment.points:
+                    points_lat_lng.append(tuple([point.latitude, point.longitude]))
 
 
 if __name__ == "__main__":
