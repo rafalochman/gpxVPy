@@ -74,7 +74,9 @@ class Window(QWidget):
         gpx_file = open(path, 'r')
         gpx = gpxpy.parse(gpx_file)
         points = []
+        tracks_name = []
         for track in gpx.tracks:
+            tracks_name.append(track.name)
             for segment in track.segments:
                 for point in segment.points:
                     points.append(tuple([point.latitude, point.longitude]))
@@ -92,6 +94,7 @@ class Window(QWidget):
         m.save(data, close_file=False)
         self.map_widget.setHtml(data.getvalue().decode())
         self.map_widget.update()
+        self.route_name_label.setText("Nazwa trasy: " + "     ".join(map(str, tracks_name)))
 
 
 if __name__ == "__main__":
