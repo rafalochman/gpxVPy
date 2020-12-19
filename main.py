@@ -71,7 +71,7 @@ class Window(QWidget):
         self.display_gpx_route(path)
 
     def display_gpx_route(self, path):
-        gpx_file = open(path, 'r')
+        gpx_file = open(path, 'r', encoding='utf8')
         gpx = gpxpy.parse(gpx_file)
         points = []
         tracks_name = []
