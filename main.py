@@ -2,7 +2,8 @@ import io
 import os
 import sys
 import folium
-from PyQt5.QtWidgets import QPushButton, QHBoxLayout, QApplication, QWidget, QVBoxLayout, QFileDialog, QLabel
+from PyQt5.QtWidgets import QPushButton, QHBoxLayout, QApplication, QWidget, QVBoxLayout, QFileDialog, QLabel, \
+    QSizePolicy
 from PyQt5 import QtWebEngineWidgets
 import gpxpy
 
@@ -19,8 +20,8 @@ class Window(QWidget):
 
     def init_layout(self):
         self.layout = QHBoxLayout()
-        self.layout.setSpacing(50)
         self.sub_layout = QVBoxLayout()
+        self.sub_layout.setSpacing(10)
         self.sub_layout.addStretch()
         self.layout.addLayout(self.sub_layout)
 
@@ -30,12 +31,26 @@ class Window(QWidget):
 
         self.file_name_label = QLabel()
 
+        self.route_name_label = QLabel("Nazwa trasy:")
+        self.route_name_label.setMinimumWidth(200)
+
+        self.distance_label = QLabel("Dystans:")
+
+        self.time_label = QLabel("Czas:")
+        self.elevation_label = QLabel("Przewyższenia:")
+
         self.sub_layout.addWidget(self.upload_gpx_button)
         self.sub_layout.addWidget(self.file_name_label)
+        self.sub_layout.addWidget(self.route_name_label)
+        self.sub_layout.addWidget(self.distance_label)
+        self.sub_layout.addWidget(self.time_label)
+        self.sub_layout.addWidget(self.elevation_label)
 
         self.sub_layout.addStretch()
 
         self.map_widget = QtWebEngineWidgets.QWebEngineView()
+        self.map_widget.setMinimumSize(400, 400)
+        self.map_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.map_widget.setContentsMargins(30, 30, 30, 30)
         m = folium.Map(
             location=[51.919438, 19.145136], zoom_start=5
@@ -52,7 +67,7 @@ class Window(QWidget):
         path = QFileDialog.getOpenFileName(None, "Select GPX file", "", "GPX files (*.gpx)")
         path = path[0]
         file_name = os.path.basename(path)
-        self.file_name_label.setText(file_name)
+        self.file_name_label.setText("Wybrany plik: " + file_name)
         self.display_gpx_route(path)
 
     def display_gpx_route(self, path):
