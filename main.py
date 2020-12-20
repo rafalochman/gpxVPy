@@ -8,7 +8,6 @@ from PyQt5 import QtWebEngineWidgets
 import gpxpy
 import mpu
 import datetime
-
 from datetime import datetime
 
 
@@ -35,14 +34,11 @@ class Window(QWidget):
         self.upload_gpx_button.clicked.connect(self.upload_gpx_button_handler)
 
         self.file_name_label = QLabel()
-
         self.route_name_label = QLabel()
         self.route_name_label.setMinimumWidth(160)
-
         self.distance_label = QLabel()
-
         self.time_label = QLabel()
-        self.elevation_label = QLabel("Przewyższenia:")
+        self.elevation_label = QLabel()
 
         self.sub_layout.addWidget(self.upload_gpx_button)
         self.sub_layout.addWidget(self.file_name_label)
@@ -103,9 +99,11 @@ class Window(QWidget):
         self.map_widget.update()
         self.route_name_label.setText("Nazwa trasy: " + "     ".join(map(str, tracks_name)))
 
+        distances_list = []
         distance = 0
         i = 0
         while i < len(points) - 1:
+            distances_list.append(distance)
             distance = distance + mpu.haversine_distance((points[i][0], points[i][1]),
                                                          (points[i + 1][0], points[i + 1][1]))
             i = i + 1
@@ -113,9 +111,18 @@ class Window(QWidget):
 
         datetime_format = "%Y-%m-%d %H:%M:%S"
         start_time = points_time_ele[0][0].strftime(datetime_format)
-        end_time = points_time_ele[len(points_time_ele)-1][0].strftime(datetime_format)
+        end_time = points_time_ele[len(points_time_ele) - 1][0].strftime(datetime_format)
         route_time = datetime.strptime(end_time, datetime_format) - datetime.strptime(start_time, datetime_format)
         self.time_label.setText("Czas: " + str(route_time))
+
+        elevation = 0
+        i = 0
+        while i < len(points_time_ele) - 1:
+            if abs(points_time_ele[i + 1][1] - points_time_ele[i][1]) > 0.15:
+                elevation = elevation + abs(points_time_ele[i + 1][1] - points_time_ele[i][1])
+            i = i + 1
+
+        self.elevation_label.setText("Przewyższenia: " + str(round(elevation, 2)))
 
 
 if __name__ == "__main__":
