@@ -7,6 +7,9 @@ from PyQt5.QtWidgets import QPushButton, QHBoxLayout, QApplication, QWidget, QVB
 from PyQt5 import QtWebEngineWidgets
 import gpxpy
 import mpu
+import datetime
+
+from datetime import datetime
 
 
 class Window(QWidget):
@@ -38,7 +41,7 @@ class Window(QWidget):
 
         self.distance_label = QLabel()
 
-        self.time_label = QLabel("Czas:")
+        self.time_label = QLabel()
         self.elevation_label = QLabel("Przewyższenia:")
 
         self.sub_layout.addWidget(self.upload_gpx_button)
@@ -76,12 +79,14 @@ class Window(QWidget):
         gpx_file = open(path, 'r', encoding='utf8')
         gpx = gpxpy.parse(gpx_file)
         points = []
+        points_time_ele = []
         tracks_name = []
         for track in gpx.tracks:
             tracks_name.append(track.name)
             for segment in track.segments:
                 for point in segment.points:
-                    points.append(tuple([point.latitude, point.longitude]))
+                    points.append([point.latitude, point.longitude])
+                    points_time_ele.append([point.time, point.elevation])
 
         center_lat = sum(p[0] for p in points) / len(points)
         center_lon = sum(p[1] for p in points) / len(points)
@@ -105,6 +110,12 @@ class Window(QWidget):
                                                          (points[i + 1][0], points[i + 1][1]))
             i = i + 1
         self.distance_label.setText("Dystans: " + str(round(distance, 2)) + " km")
+
+        datetime_format = "%Y-%m-%d %H:%M:%S"
+        start_time = points_time_ele[0][0].strftime(datetime_format)
+        end_time = points_time_ele[len(points_time_ele)-1][0].strftime(datetime_format)
+        route_time = datetime.strptime(end_time, datetime_format) - datetime.strptime(start_time, datetime_format)
+        self.time_label.setText("Czas: " + str(route_time))
 
 
 if __name__ == "__main__":
