@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QPushButton, QHBoxLayout, QApplication, QWidget, QVB
     QSizePolicy
 from PyQt5 import QtWebEngineWidgets
 import gpxpy
+import mpu
 
 
 class Window(QWidget):
@@ -31,10 +32,10 @@ class Window(QWidget):
 
         self.file_name_label = QLabel()
 
-        self.route_name_label = QLabel("Nazwa trasy:")
+        self.route_name_label = QLabel()
         self.route_name_label.setMinimumWidth(200)
 
-        self.distance_label = QLabel("Dystans:")
+        self.distance_label = QLabel()
 
         self.time_label = QLabel("Czas:")
         self.elevation_label = QLabel("Przewyższenia:")
@@ -95,6 +96,13 @@ class Window(QWidget):
         self.map_widget.setHtml(data.getvalue().decode())
         self.map_widget.update()
         self.route_name_label.setText("Nazwa trasy: " + "     ".join(map(str, tracks_name)))
+
+        distance = 0
+        i = 0
+        while i < len(points) - 1:
+            distance = distance + mpu.haversine_distance((points[i][0], points[i][1]), (points[i+1][0], points[i+1][1]))
+            i = i + 1
+        self.distance_label.setText("Dystans: " + str(round(distance, 2)) + " km")
 
 
 if __name__ == "__main__":
