@@ -23,6 +23,7 @@ class Window(QWidget):
         self.layout = QHBoxLayout()
         self.sub_layout = QVBoxLayout()
         self.sub_layout.setSpacing(10)
+        self.sub_layout.setContentsMargins(20, 0, 0, 0)
         self.sub_layout.addStretch()
         self.layout.addLayout(self.sub_layout)
 
@@ -33,7 +34,7 @@ class Window(QWidget):
         self.file_name_label = QLabel()
 
         self.route_name_label = QLabel()
-        self.route_name_label.setMinimumWidth(200)
+        self.route_name_label.setMinimumWidth(160)
 
         self.distance_label = QLabel()
 
@@ -100,7 +101,8 @@ class Window(QWidget):
         distance = 0
         i = 0
         while i < len(points) - 1:
-            distance = distance + mpu.haversine_distance((points[i][0], points[i][1]), (points[i+1][0], points[i+1][1]))
+            distance = distance + mpu.haversine_distance((points[i][0], points[i][1]),
+                                                         (points[i + 1][0], points[i + 1][1]))
             i = i + 1
         self.distance_label.setText("Dystans: " + str(round(distance, 2)) + " km")
 
