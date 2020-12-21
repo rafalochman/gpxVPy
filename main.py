@@ -4,7 +4,7 @@ import sys
 import folium
 from PyQt5.QtWidgets import QPushButton, QHBoxLayout, QApplication, QWidget, QVBoxLayout, QFileDialog, QLabel, \
     QSizePolicy
-from PyQt5 import QtWebEngineWidgets
+from PyQt5 import QtWebEngineWidgets, QtGui
 import gpxpy
 import mpu
 import datetime
@@ -21,6 +21,7 @@ class Window(QWidget):
     def init_window(self):
         self.setWindowTitle("GPX Viewer")
         self.resize(1300, 800)
+        self.setWindowIcon(QtGui.QIcon('map_icon.png'))
         self.init_layout()
 
     def init_layout(self):
