@@ -80,22 +80,29 @@ class Window(QWidget):
         path = path[0]
         file_name = os.path.basename(path)
         self.file_name_label.setText("Selected file: " + file_name)
+        self.file_name_label.setStyleSheet("color: black; font-size: 9pt; font-family: railway;")
         self.display_gpx_route(path)
 
     def display_gpx_route(self, path):
-        gpx_file = open(path, 'r', encoding='utf8')
-        gpx = gpxpy.parse(gpx_file)
         points = []
         points_time_ele = []
         tracks_name = []
         elevations_list = []
-        for track in gpx.tracks:
-            tracks_name.append(track.name)
-            for segment in track.segments:
-                for point in segment.points:
-                    points.append([point.latitude, point.longitude])
-                    points_time_ele.append([point.time, point.elevation])
-                    elevations_list.append(point.elevation)
+        try:
+            gpx_file = open(path, 'r', encoding='utf8')
+            gpx = gpxpy.parse(gpx_file)
+            for track in gpx.tracks:
+                tracks_name.append(track.name)
+                for segment in track.segments:
+                    for point in segment.points:
+                        points.append([point.latitude, point.longitude])
+                        points_time_ele.append([point.time, point.elevation])
+                        elevations_list.append(point.elevation)
+        except Exception as e:
+            self.file_name_label.setText("Selected wrong file")
+            self.file_name_label.setStyleSheet("color: red; font-size: 9pt; font-family: railway;")
+            print(e)
+            return
 
         center_lat = sum(p[0] for p in points) / len(points)
         center_lon = sum(p[1] for p in points) / len(points)
