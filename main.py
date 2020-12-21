@@ -9,6 +9,8 @@ import gpxpy
 import mpu
 import datetime
 from datetime import datetime
+import plotly.express as px
+import pandas as pd
 
 
 class Window(QWidget):
@@ -18,16 +20,18 @@ class Window(QWidget):
 
     def init_window(self):
         self.setWindowTitle("GPX Viewer")
-        self.resize(1300, 700)
+        self.resize(1300, 800)
         self.init_layout()
 
     def init_layout(self):
         self.layout = QHBoxLayout()
-        self.sub_layout = QVBoxLayout()
-        self.sub_layout.setSpacing(10)
-        self.sub_layout.setContentsMargins(20, 0, 0, 0)
-        self.sub_layout.addStretch()
-        self.layout.addLayout(self.sub_layout)
+        self.sub_layout_left = QVBoxLayout()
+        self.sub_layout_left.setSpacing(10)
+        self.sub_layout_left.setContentsMargins(20, 0, 0, 0)
+        self.sub_layout_left.addStretch()
+        self.layout.addLayout(self.sub_layout_left)
+        self.sub_layout_right = QVBoxLayout()
+        self.layout.addLayout(self.sub_layout_right)
 
         self.upload_gpx_button = QPushButton("upload gpx file")
         self.upload_gpx_button.setFixedSize(100, 40)
@@ -40,14 +44,14 @@ class Window(QWidget):
         self.time_label = QLabel()
         self.elevation_label = QLabel()
 
-        self.sub_layout.addWidget(self.upload_gpx_button)
-        self.sub_layout.addWidget(self.file_name_label)
-        self.sub_layout.addWidget(self.route_name_label)
-        self.sub_layout.addWidget(self.distance_label)
-        self.sub_layout.addWidget(self.time_label)
-        self.sub_layout.addWidget(self.elevation_label)
+        self.sub_layout_left.addWidget(self.upload_gpx_button)
+        self.sub_layout_left.addWidget(self.file_name_label)
+        self.sub_layout_left.addWidget(self.route_name_label)
+        self.sub_layout_left.addWidget(self.distance_label)
+        self.sub_layout_left.addWidget(self.time_label)
+        self.sub_layout_left.addWidget(self.elevation_label)
 
-        self.sub_layout.addStretch()
+        self.sub_layout_left.addStretch()
 
         self.map_widget = QtWebEngineWidgets.QWebEngineView()
         self.map_widget.setMinimumSize(400, 400)
@@ -59,8 +63,12 @@ class Window(QWidget):
         data = io.BytesIO()
         m.save(data, close_file=False)
         self.map_widget.setHtml(data.getvalue().decode())
+        self.sub_layout_right.addWidget(self.map_widget)
 
-        self.layout.addWidget(self.map_widget)
+        self.plot_widget = QtWebEngineWidgets.QWebEngineView()
+        self.plot_widget.setMinimumHeight(80)
+        self.plot_widget.setContentsMargins(30, 0, 30, 30)
+        self.sub_layout_right.addWidget(self.plot_widget)
 
         self.setLayout(self.layout)
 
@@ -77,12 +85,14 @@ class Window(QWidget):
         points = []
         points_time_ele = []
         tracks_name = []
+        elevations_list = []
         for track in gpx.tracks:
             tracks_name.append(track.name)
             for segment in track.segments:
                 for point in segment.points:
                     points.append([point.latitude, point.longitude])
                     points_time_ele.append([point.time, point.elevation])
+                    elevations_list.append(point.elevation)
 
         center_lat = sum(p[0] for p in points) / len(points)
         center_lon = sum(p[1] for p in points) / len(points)
@@ -123,6 +133,18 @@ class Window(QWidget):
             i = i + 1
 
         self.elevation_label.setText("Przewyższenia: " + str(round(elevation, 2)))
+
+        df = pd.DataFrame(list(zip(elevations_list, distances_list)),
+                          columns=['elevation', 'distance'])
+        plot = px.line(df, x="distance", y="elevation")
+        plot.update_layout(
+            showlegend=False,
+            plot_bgcolor="white",
+            margin=dict(t=0, l=0, b=0, r=0)
+        )
+        plot.update_xaxes(visible=False, fixedrange=True)
+        plot.update_traces()
+        self.plot_widget.setHtml(plot.to_html(include_plotlyjs='cdn', config=dict(displayModeBar=False)))
 
 
 if __name__ == "__main__":
