@@ -22,6 +22,7 @@ class Window(QWidget):
         self.setWindowTitle("GPX Viewer")
         self.resize(1300, 800)
         self.setWindowIcon(QtGui.QIcon('map_icon.png'))
+        self.setFont(QtGui.QFont("railway", 9))
         self.init_layout()
 
     def init_layout(self):
@@ -33,9 +34,9 @@ class Window(QWidget):
         self.layout.addLayout(self.sub_layout_left)
         self.sub_layout_right = QVBoxLayout()
         self.layout.addLayout(self.sub_layout_right)
-
         self.upload_gpx_button = QPushButton("upload gpx file")
         self.upload_gpx_button.setFixedSize(100, 40)
+
         self.upload_gpx_button.clicked.connect(self.upload_gpx_button_handler)
 
         self.file_name_label = QLabel()
@@ -44,6 +45,7 @@ class Window(QWidget):
         self.distance_label = QLabel()
         self.time_label = QLabel()
         self.elevation_label = QLabel()
+        self.file_name_label.setContentsMargins(0, 20, 0, 0)
 
         self.sub_layout_left.addWidget(self.upload_gpx_button)
         self.sub_layout_left.addWidget(self.file_name_label)
@@ -133,7 +135,7 @@ class Window(QWidget):
                 elevation = elevation + abs(points_time_ele[i + 1][1] - points_time_ele[i][1])
             i = i + 1
 
-        self.elevation_label.setText("Przewyższenia: " + str(round(elevation, 2)))
+        self.elevation_label.setText("Przewyższenia: " + str(round(elevation, 2)) + " m")
 
         df = pd.DataFrame(list(zip(elevations_list, distances_list)),
                           columns=['elevation', 'distance'])
@@ -141,7 +143,8 @@ class Window(QWidget):
         plot.update_layout(
             showlegend=False,
             plot_bgcolor="white",
-            margin=dict(t=0, l=0, b=0, r=0)
+            margin=dict(t=0, l=0, b=0, r=0),
+            font_size=9
         )
         plot.update_xaxes(visible=False, fixedrange=True)
         plot.update_traces()
