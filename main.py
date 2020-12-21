@@ -131,7 +131,7 @@ class Window(QWidget):
         elevation = 0
         i = 0
         while i < len(points_time_ele) - 1:
-            if abs(points_time_ele[i + 1][1] - points_time_ele[i][1]) > 0.15:
+            if points_time_ele[i + 1][1] - points_time_ele[i][1] > 0.1:
                 elevation = elevation + abs(points_time_ele[i + 1][1] - points_time_ele[i][1])
             i = i + 1
 
