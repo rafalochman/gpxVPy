@@ -79,7 +79,7 @@ class Window(QWidget):
         path = QFileDialog.getOpenFileName(None, "Select GPX file", "", "GPX files (*.gpx)")
         path = path[0]
         file_name = os.path.basename(path)
-        self.file_name_label.setText("Wybrany plik: " + file_name)
+        self.file_name_label.setText("Selected file: " + file_name)
         self.display_gpx_route(path)
 
     def display_gpx_route(self, path):
@@ -110,7 +110,7 @@ class Window(QWidget):
         m.save(data, close_file=False)
         self.map_widget.setHtml(data.getvalue().decode())
         self.map_widget.update()
-        self.route_name_label.setText("Nazwa trasy: " + "     ".join(map(str, tracks_name)))
+        self.route_name_label.setText("Route name: " + "     ".join(map(str, tracks_name)))
 
         distances_list = []
         distance = 0
@@ -120,13 +120,13 @@ class Window(QWidget):
             distance = distance + mpu.haversine_distance((points[i][0], points[i][1]),
                                                          (points[i + 1][0], points[i + 1][1]))
             i = i + 1
-        self.distance_label.setText("Dystans: " + str(round(distance, 2)) + " km")
+        self.distance_label.setText("Distance: " + str(round(distance, 2)) + " km")
 
         datetime_format = "%Y-%m-%d %H:%M:%S"
         start_time = points_time_ele[0][0].strftime(datetime_format)
         end_time = points_time_ele[len(points_time_ele) - 1][0].strftime(datetime_format)
         route_time = datetime.strptime(end_time, datetime_format) - datetime.strptime(start_time, datetime_format)
-        self.time_label.setText("Czas: " + str(route_time))
+        self.time_label.setText("Time: " + str(route_time))
 
         elevation = 0
         i = 0
@@ -135,7 +135,7 @@ class Window(QWidget):
                 elevation = elevation + abs(points_time_ele[i + 1][1] - points_time_ele[i][1])
             i = i + 1
 
-        self.elevation_label.setText("Przewyższenia: " + str(round(elevation, 2)) + " m")
+        self.elevation_label.setText("Elevation: " + str(round(elevation, 2)) + " m")
 
         df = pd.DataFrame(list(zip(elevations_list, distances_list)),
                           columns=['elevation', 'distance'])
