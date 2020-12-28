@@ -44,7 +44,6 @@ class Window(QWidget):
         self.setWindowTitle("GPX Viewer")
         self.resize(1300, 800)
         self.setWindowIcon(QtGui.QIcon('map_icon.png'))
-        self.setFont(QtGui.QFont("railway", 9))
         self.init_layout()
 
     def init_layout(self):
@@ -187,7 +186,6 @@ class Window(QWidget):
 
 if __name__ == "__main__":
     App = QApplication(sys.argv)
-    App.setStyle("Default")
     window = Window()
     window.show()
     sys.exit(App.exec())
