@@ -11,6 +11,7 @@ import datetime
 from datetime import datetime
 import plotly.express as px
 import pandas as pd
+import logging
 
 
 class Window(QWidget):
@@ -28,6 +29,12 @@ class Window(QWidget):
         self.sub_layout_left = QVBoxLayout()
         self.layout = QHBoxLayout()
         self.init_window()
+        self.logger = logging.getLogger("gpxViewer")
+        formatter = logging.Formatter(fmt='%(asctime)s %(levelname)s %(message)s',
+                                      datefmt='%Y-%m-%d %H:%M:%S')
+        file_handler = logging.FileHandler('logs.log')
+        file_handler.setFormatter(formatter)
+        self.logger.addHandler(file_handler)
 
     def init_window(self):
         self.setWindowTitle("GPX Viewer")
@@ -101,7 +108,7 @@ class Window(QWidget):
         except Exception as e:
             self.file_name_label.setText("Selected wrong file")
             self.file_name_label.setStyleSheet("color: red; font-size: 9pt; font-family: railway;")
-            print(e)
+            self.logger.error(e)
             return
 
         center_lat = sum(p[0] for p in points) / len(points)
