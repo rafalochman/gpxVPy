@@ -35,6 +35,7 @@ class Window(QWidget):
         file_handler = logging.FileHandler('logs.log')
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
+        self.setStyleSheet(open('style.css').read())
 
     def init_window(self):
         self.setWindowTitle("GPX Viewer")
@@ -49,7 +50,7 @@ class Window(QWidget):
         self.sub_layout_left.addStretch()
         self.layout.addLayout(self.sub_layout_left)
         self.layout.addLayout(self.sub_layout_right)
-        self.upload_gpx_button.setFixedSize(100, 40)
+        self.upload_gpx_button.setFixedSize(120, 45)
 
         self.upload_gpx_button.clicked.connect(self.upload_gpx_button_handler)
 
@@ -168,6 +169,7 @@ class Window(QWidget):
 
 if __name__ == "__main__":
     App = QApplication(sys.argv)
+    App.setStyle("Default")
     window = Window()
     window.show()
     sys.exit(App.exec())
