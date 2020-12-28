@@ -145,9 +145,16 @@ class Window(QWidget):
         m = folium.Map(
             location=[center_lat, center_lon]
         )
+        folium.TileLayer('Stamen Terrain').add_to(m)
+        folium.TileLayer('Stamen Toner').add_to(m)
+        folium.TileLayer('cartodbpositron').add_to(m)
+        folium.TileLayer('cartodbdark_matter').add_to(m)
+        folium.LayerControl().add_to(m)
         folium.PolyLine(points, color="red", weight=2.5, opacity=1).add_to(m)
-        folium.Circle(location=(points[0][0], points[0][1]), popup='Start', fill=True, radius=30, color="green").add_to(m)
-        folium.Circle(location=(points[-1][0], points[-1][1]), popup='Finish', fill=True, radius=30, color="red").add_to(m)
+        folium.Circle(location=(points[0][0], points[0][1]), popup='Start', fill=True, radius=30, color="green").add_to(
+            m)
+        folium.Circle(location=(points[-1][0], points[-1][1]), popup='Finish', fill=True, radius=30,
+                      color="red").add_to(m)
         m.fit_bounds(points)
         data = io.BytesIO()
         m.save(data, close_file=False)
@@ -189,7 +196,7 @@ class Window(QWidget):
             showlegend=False,
             plot_bgcolor="white",
             margin=dict(t=0, l=0, b=0, r=0),
-            font_size=9,
+            font_size=9
         )
         plot.update_xaxes(visible=False, fixedrange=True)
         plot.update_traces()
