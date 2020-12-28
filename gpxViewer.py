@@ -146,6 +146,8 @@ class Window(QWidget):
             location=[center_lat, center_lon]
         )
         folium.PolyLine(points, color="red", weight=2.5, opacity=1).add_to(m)
+        folium.Circle(location=(points[0][0], points[0][1]), popup='Start', fill=True, radius=30, color="green").add_to(m)
+        folium.Circle(location=(points[-1][0], points[-1][1]), popup='Finish', fill=True, radius=30, color="red").add_to(m)
         m.fit_bounds(points)
         data = io.BytesIO()
         m.save(data, close_file=False)
