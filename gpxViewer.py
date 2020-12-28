@@ -16,6 +16,17 @@ import pandas as pd
 class Window(QWidget):
     def __init__(self):
         super().__init__()
+        self.plot_widget = QtWebEngineWidgets.QWebEngineView()
+        self.map_widget = QtWebEngineWidgets.QWebEngineView()
+        self.elevation_label = QLabel()
+        self.time_label = QLabel()
+        self.distance_label = QLabel()
+        self.route_name_label = QLabel()
+        self.file_name_label = QLabel()
+        self.upload_gpx_button = QPushButton("upload gpx file")
+        self.sub_layout_right = QVBoxLayout()
+        self.sub_layout_left = QVBoxLayout()
+        self.layout = QHBoxLayout()
         self.init_window()
 
     def init_window(self):
@@ -26,25 +37,16 @@ class Window(QWidget):
         self.init_layout()
 
     def init_layout(self):
-        self.layout = QHBoxLayout()
-        self.sub_layout_left = QVBoxLayout()
         self.sub_layout_left.setSpacing(10)
         self.sub_layout_left.setContentsMargins(20, 0, 0, 0)
         self.sub_layout_left.addStretch()
         self.layout.addLayout(self.sub_layout_left)
-        self.sub_layout_right = QVBoxLayout()
         self.layout.addLayout(self.sub_layout_right)
-        self.upload_gpx_button = QPushButton("upload gpx file")
         self.upload_gpx_button.setFixedSize(100, 40)
 
         self.upload_gpx_button.clicked.connect(self.upload_gpx_button_handler)
 
-        self.file_name_label = QLabel()
-        self.route_name_label = QLabel()
         self.route_name_label.setMinimumWidth(160)
-        self.distance_label = QLabel()
-        self.time_label = QLabel()
-        self.elevation_label = QLabel()
         self.file_name_label.setContentsMargins(0, 20, 0, 0)
 
         self.sub_layout_left.addWidget(self.upload_gpx_button)
@@ -56,7 +58,6 @@ class Window(QWidget):
 
         self.sub_layout_left.addStretch()
 
-        self.map_widget = QtWebEngineWidgets.QWebEngineView()
         self.map_widget.setMinimumSize(400, 400)
         self.map_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.map_widget.setContentsMargins(30, 30, 30, 30)
@@ -68,7 +69,6 @@ class Window(QWidget):
         self.map_widget.setHtml(data.getvalue().decode())
         self.sub_layout_right.addWidget(self.map_widget)
 
-        self.plot_widget = QtWebEngineWidgets.QWebEngineView()
         self.plot_widget.setMinimumHeight(80)
         self.plot_widget.setContentsMargins(30, 0, 30, 30)
         self.sub_layout_right.addWidget(self.plot_widget)
@@ -81,9 +81,9 @@ class Window(QWidget):
         file_name = os.path.basename(path)
         self.file_name_label.setText("Selected file: " + file_name)
         self.file_name_label.setStyleSheet("color: black; font-size: 9pt; font-family: railway;")
-        self.display_gpx_route(path)
+        self.display_gpx(path)
 
-    def display_gpx_route(self, path):
+    def display_gpx(self, path):
         points = []
         points_time_ele = []
         tracks_name = []
