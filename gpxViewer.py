@@ -26,6 +26,7 @@ class Window(QWidget):
         self.distance_label = QLabel()
         self.route_name_label = QLabel()
         self.file_name_label = QLabel()
+        self.save_label = QLabel()
         self.upload_gpx_button = QPushButton("upload gpx file")
         self.save_map_button = QPushButton("save map")
         self.sub_layout_right = QVBoxLayout()
@@ -71,6 +72,7 @@ class Window(QWidget):
         self.sub_layout_left.addWidget(self.time_label)
         self.sub_layout_left.addWidget(self.elevation_label)
         self.sub_layout_left.addStretch()
+        self.sub_layout_left.addWidget(self.save_label)
         self.sub_layout_left.addWidget(self.save_map_button)
 
         self.map_widget.setMinimumSize(400, 400)
@@ -92,11 +94,12 @@ class Window(QWidget):
         self.setLayout(self.layout)
 
     def upload_gpx_button_handler(self):
+        self.save_label.setText("")
         path = QFileDialog.getOpenFileName(None, "Select GPX file", "", "GPX files (*.gpx)")
         path = path[0]
         file_name = os.path.basename(path)
         self.file_name_label.setText("Selected file: " + file_name)
-        self.file_name_label.setStyleSheet("color: black; font-size: 9pt; font-family: railway;")
+        self.file_name_label.setStyleSheet("color: black;")
         self.display_gpx(path)
 
     def save_map_handler(self):
@@ -104,8 +107,15 @@ class Window(QWidget):
         try:
             file_name = self.route_name_label.text().split()[-1] + ".html"
             m.save(file_name)
+            self.save_label.setStyleSheet("color: black;")
+            self.save_label.setText("File saved")
         except Exception as e:
+            self.save_label.setStyleSheet("color: red;")
+            self.save_label.setText("File not saved")
             self.logger.error(e)
+
+    def on_time(self):
+        self.save_label.setText("")
 
     def display_gpx(self, path):
         points = []
@@ -124,7 +134,7 @@ class Window(QWidget):
                         elevations_list.append(point.elevation)
         except Exception as e:
             self.file_name_label.setText("Selected wrong file")
-            self.file_name_label.setStyleSheet("color: red; font-size: 9pt; font-family: railway;")
+            self.file_name_label.setStyleSheet("color: red;")
             self.logger.error(e)
             return
 
