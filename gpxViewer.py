@@ -156,15 +156,16 @@ class Window(QWidget):
         self.route_name_label.setText("Route name: " + "     ".join(map(str, tracks_name)))
 
         distances_list = []
+        rounded_distances_list = []
         distance = 0
         i = 0
         while i < len(points) - 1:
             distances_list.append(distance)
+            rounded_distances_list.append(round(distance, 2))
             distance = distance + mpu.haversine_distance((points[i][0], points[i][1]),
                                                          (points[i + 1][0], points[i + 1][1]))
-            distance = round(distance, 2)
             i = i + 1
-        self.distance_label.setText("Distance: " + str(distance) + " km")
+        self.distance_label.setText("Distance: " + str(round(distance, 2)) + " km")
 
         datetime_format = "%Y-%m-%d %H:%M:%S"
         start_time = points_time_ele[0][0].strftime(datetime_format)
@@ -181,7 +182,7 @@ class Window(QWidget):
 
         self.elevation_label.setText("Elevation: " + str(round(elevation, 2)) + " m")
 
-        df = pd.DataFrame(list(zip(elevations_list, distances_list)),
+        df = pd.DataFrame(list(zip(elevations_list, rounded_distances_list)),
                           columns=['elevation', 'distance'])
         plot = px.line(df, x="distance", y="elevation")
         plot.update_layout(
