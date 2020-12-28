@@ -133,8 +133,9 @@ class Window(QWidget):
             distances_list.append(distance)
             distance = distance + mpu.haversine_distance((points[i][0], points[i][1]),
                                                          (points[i + 1][0], points[i + 1][1]))
+            distance = round(distance, 2)
             i = i + 1
-        self.distance_label.setText("Distance: " + str(round(distance, 2)) + " km")
+        self.distance_label.setText("Distance: " + str(distance) + " km")
 
         datetime_format = "%Y-%m-%d %H:%M:%S"
         start_time = points_time_ele[0][0].strftime(datetime_format)
@@ -158,7 +159,7 @@ class Window(QWidget):
             showlegend=False,
             plot_bgcolor="white",
             margin=dict(t=0, l=0, b=0, r=0),
-            font_size=9
+            font_size=9,
         )
         plot.update_xaxes(visible=False, fixedrange=True)
         plot.update_traces()
