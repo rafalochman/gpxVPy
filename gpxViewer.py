@@ -13,6 +13,8 @@ import plotly.express as px
 import pandas as pd
 import logging
 
+m = folium.Map()
+
 
 class Window(QWidget):
     def __init__(self):
@@ -25,6 +27,7 @@ class Window(QWidget):
         self.route_name_label = QLabel()
         self.file_name_label = QLabel()
         self.upload_gpx_button = QPushButton("upload gpx file")
+        self.save_map_button = QPushButton("save map")
         self.sub_layout_right = QVBoxLayout()
         self.sub_layout_left = QVBoxLayout()
         self.layout = QHBoxLayout()
@@ -51,8 +54,13 @@ class Window(QWidget):
         self.layout.addLayout(self.sub_layout_left)
         self.layout.addLayout(self.sub_layout_right)
         self.upload_gpx_button.setFixedSize(120, 45)
+        self.save_map_button.setObjectName("save_map_button")
+        self.save_map_button.setFixedWidth(85)
+        self.save_map_button.setContentsMargins(50, 50, 50, 50)
+        self.save_map_button.setVisible(False)
 
         self.upload_gpx_button.clicked.connect(self.upload_gpx_button_handler)
+        self.save_map_button.clicked.connect(self.save_map_handler)
 
         self.route_name_label.setMinimumWidth(160)
         self.file_name_label.setContentsMargins(0, 20, 0, 0)
@@ -63,12 +71,13 @@ class Window(QWidget):
         self.sub_layout_left.addWidget(self.distance_label)
         self.sub_layout_left.addWidget(self.time_label)
         self.sub_layout_left.addWidget(self.elevation_label)
-
         self.sub_layout_left.addStretch()
+        self.sub_layout_left.addWidget(self.save_map_button)
 
         self.map_widget.setMinimumSize(400, 400)
         self.map_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.map_widget.setContentsMargins(30, 30, 30, 30)
+        global m
         m = folium.Map(
             location=[51.919438, 19.145136], zoom_start=5
         )
@@ -90,6 +99,14 @@ class Window(QWidget):
         self.file_name_label.setText("Selected file: " + file_name)
         self.file_name_label.setStyleSheet("color: black; font-size: 9pt; font-family: railway;")
         self.display_gpx(path)
+
+    def save_map_handler(self):
+        global m
+        try:
+            file_name = self.route_name_label.text().split()[-1] + ".html"
+            m.save(file_name)
+        except Exception as e:
+            self.logger.error(e)
 
     def display_gpx(self, path):
         points = []
@@ -115,12 +132,12 @@ class Window(QWidget):
         center_lat = sum(p[0] for p in points) / len(points)
         center_lon = sum(p[1] for p in points) / len(points)
 
+        global m
         m = folium.Map(
             location=[center_lat, center_lon]
         )
         folium.PolyLine(points, color="red", weight=2.5, opacity=1).add_to(m)
         m.fit_bounds(points)
-
         data = io.BytesIO()
         m.save(data, close_file=False)
         self.map_widget.setHtml(data.getvalue().decode())
@@ -165,6 +182,7 @@ class Window(QWidget):
         plot.update_xaxes(visible=False, fixedrange=True)
         plot.update_traces()
         self.plot_widget.setHtml(plot.to_html(include_plotlyjs='cdn', config=dict(displayModeBar=False)))
+        self.save_map_button.setVisible(True)
 
 
 if __name__ == "__main__":

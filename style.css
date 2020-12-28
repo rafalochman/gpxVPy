@@ -21,3 +21,8 @@ QPushButton:hover {
     background-color: #29B6F6;
 }
 
+QPushButton#save_map_button {
+    margin-bottom: 30px;
+    height: 30px;
+}
+
