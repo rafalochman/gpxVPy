@@ -19,6 +19,7 @@ m = folium.Map()
 class Window(QWidget):
     def __init__(self):
         super().__init__()
+        # initialize ui elements
         self.plot_widget = QtWebEngineWidgets.QWebEngineView()
         self.map_widget = QtWebEngineWidgets.QWebEngineView()
         self.elevation_label = QLabel()
@@ -33,12 +34,14 @@ class Window(QWidget):
         self.sub_layout_left = QVBoxLayout()
         self.layout = QHBoxLayout()
         self.init_window()
+        # add logger
         self.logger = logging.getLogger("gpxViewer")
         formatter = logging.Formatter(fmt='%(asctime)s %(levelname)s %(message)s',
                                       datefmt='%Y-%m-%d %H:%M:%S')
         file_handler = logging.FileHandler('logs.log')
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
+        # add css style sheet
         self.setStyleSheet(open('style.css').read())
 
     def init_window(self):
@@ -48,6 +51,7 @@ class Window(QWidget):
         self.init_layout()
 
     def init_layout(self):
+        # set ui elements position and size
         self.sub_layout_left.setSpacing(10)
         self.sub_layout_left.setContentsMargins(20, 0, 0, 0)
         self.sub_layout_left.addStretch()
@@ -57,14 +61,15 @@ class Window(QWidget):
         self.save_map_button.setObjectName("save_map_button")
         self.save_map_button.setFixedWidth(85)
         self.save_map_button.setContentsMargins(50, 50, 50, 50)
+        self.route_name_label.setMinimumWidth(160)
+        self.file_name_label.setContentsMargins(0, 20, 0, 0)
         self.save_map_button.setVisible(False)
 
+        # add button actions
         self.upload_gpx_button.clicked.connect(self.upload_gpx_button_handler)
         self.save_map_button.clicked.connect(self.save_map_handler)
 
-        self.route_name_label.setMinimumWidth(160)
-        self.file_name_label.setContentsMargins(0, 20, 0, 0)
-
+        # add widgets to layout
         self.sub_layout_left.addWidget(self.upload_gpx_button)
         self.sub_layout_left.addWidget(self.file_name_label)
         self.sub_layout_left.addWidget(self.route_name_label)
@@ -75,6 +80,7 @@ class Window(QWidget):
         self.sub_layout_left.addWidget(self.save_label)
         self.sub_layout_left.addWidget(self.save_map_button)
 
+        # initialize default map
         self.map_widget.setMinimumSize(400, 400)
         self.map_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.map_widget.setContentsMargins(30, 30, 30, 30)
@@ -87,6 +93,7 @@ class Window(QWidget):
         self.map_widget.setHtml(data.getvalue().decode())
         self.sub_layout_right.addWidget(self.map_widget)
 
+        # initialize plot widget
         self.plot_widget.setMinimumHeight(80)
         self.plot_widget.setContentsMargins(30, 0, 30, 30)
         self.sub_layout_right.addWidget(self.plot_widget)
@@ -114,14 +121,12 @@ class Window(QWidget):
             self.save_label.setText("File not saved")
             self.logger.error(e)
 
-    def on_time(self):
-        self.save_label.setText("")
-
     def display_gpx(self, path):
         points = []
         points_time_ele = []
         tracks_name = []
         elevations_list = []
+        # read gpx file
         try:
             gpx_file = open(path, 'r', encoding='utf8')
             gpx = gpxpy.parse(gpx_file)
@@ -138,30 +143,38 @@ class Window(QWidget):
             self.logger.error(e)
             return
 
+        # find center latitude and longitude for uploaded gpx points
         center_lat = sum(p[0] for p in points) / len(points)
         center_lon = sum(p[1] for p in points) / len(points)
 
+        # initialize map
         global m
         m = folium.Map(
             location=[center_lat, center_lon]
         )
+        # add map layers
         folium.TileLayer('Stamen Terrain').add_to(m)
         folium.TileLayer('Stamen Toner').add_to(m)
         folium.TileLayer('cartodbpositron').add_to(m)
         folium.TileLayer('cartodbdark_matter').add_to(m)
         folium.LayerControl().add_to(m)
+        # add rute line to map
         folium.PolyLine(points, color="red", weight=2.5, opacity=1).add_to(m)
+        # add start and finish route points to map
         folium.Circle(location=(points[0][0], points[0][1]), popup='Start', fill=True, radius=30, color="green").add_to(
             m)
         folium.Circle(location=(points[-1][0], points[-1][1]), popup='Finish', fill=True, radius=30,
                       color="red").add_to(m)
+        # fit map zoom to route points
         m.fit_bounds(points)
+
         data = io.BytesIO()
         m.save(data, close_file=False)
         self.map_widget.setHtml(data.getvalue().decode())
         self.map_widget.update()
         self.route_name_label.setText("Route name: " + "     ".join(map(str, tracks_name)))
 
+        # calculate and display route distance
         distances_list = []
         rounded_distances_list = []
         distance = 0
@@ -174,12 +187,14 @@ class Window(QWidget):
             i = i + 1
         self.distance_label.setText("Distance: " + str(round(distance, 2)) + " km")
 
+        # calculate and display route time
         datetime_format = "%Y-%m-%d %H:%M:%S"
         start_time = points_time_ele[0][0].strftime(datetime_format)
         end_time = points_time_ele[len(points_time_ele) - 1][0].strftime(datetime_format)
         route_time = datetime.strptime(end_time, datetime_format) - datetime.strptime(start_time, datetime_format)
         self.time_label.setText("Time: " + str(route_time))
 
+        # calculate and display route elevation
         elevation = 0
         i = 0
         while i < len(points_time_ele) - 1:
@@ -189,6 +204,7 @@ class Window(QWidget):
 
         self.elevation_label.setText("Elevation: " + str(round(elevation, 2)) + " m")
 
+        # create elevation plot
         df = pd.DataFrame(list(zip(elevations_list, rounded_distances_list)),
                           columns=['elevation', 'distance'])
         plot = px.line(df, x="distance", y="elevation")
@@ -201,6 +217,7 @@ class Window(QWidget):
         plot.update_xaxes(visible=False, fixedrange=True)
         plot.update_traces()
         self.plot_widget.setHtml(plot.to_html(include_plotlyjs='cdn', config=dict(displayModeBar=False)))
+
         self.save_map_button.setVisible(True)
 
 
