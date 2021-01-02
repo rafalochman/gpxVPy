@@ -5,5 +5,13 @@ gpxViewer is a desktop aplication to show gpx route on map and calculate route d
 * Python 3.8
 * PyQt5
 
+## Main Libraries
+* folium
+* gpxpy
+* mpu
+* plotly.express
+* pandas
+* logging
+
 ## Application view
 ![application view image](applicationView.PNG)
