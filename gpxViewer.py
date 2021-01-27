@@ -16,7 +16,7 @@ import logging
 m = folium.Map()
 
 
-class Window(QWidget):
+class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         # initialize ui elements
@@ -223,6 +223,6 @@ class Window(QWidget):
 
 if __name__ == "__main__":
     App = QApplication(sys.argv)
-    window = Window()
+    window = MainWindow()
     window.show()
     sys.exit(App.exec())
